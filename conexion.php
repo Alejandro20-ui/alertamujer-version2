@@ -1,42 +1,36 @@
 <?php
-// ¡IMPORTANTE! Asegúrate de que esta sea la línea 1 sin espacios en blanco encima.
-
-// Reportar errores para que aparezcan en los logs de Railway, pero no en la salida JSON.
+// Reportar errores para logs
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
-// --- 1. Obtener Credenciales desde Variables de Entorno de Railway ---
-$host = getenv('MYSQLHOST');
-$user = getenv('MYSQLUSER');
-$pass = getenv('MYSQLPASSWORD');
-$db   = getenv('MYSQLDATABASE'); // Debe ser 'alertamujer'
-$port = getenv('MYSQLPORT');
+// Identificar correctamente todas las variantes de variables que Railway usa
+$host = getenv('MYSQLHOST') ?: getenv('MYSQL_HOST') ?: getenv('HOST');
+$user = getenv('MYSQLUSER') ?: getenv('MYSQL_USER') ?: getenv('USER');
+$pass = getenv('MYSQLPASSWORD') ?: getenv('MYSQL_PASSWORD') ?: getenv('PASSWORD');
+$db   = getenv('MYSQLDATABASE') ?: getenv('MYSQL_DATABASE') ?: getenv('DATABASE');
+$port = getenv('MYSQLPORT') ?: getenv('MYSQL_PORT') ?: 3306;
 
-// Inicializar la variable de conexión como null
+// Inicializar conexión
 $conn = null;
 
-// **Verificación de seguridad:** Si faltan variables, no intentar conectar.
+// Si falta algo, registrar error
 if (!$host || !$user || !$pass || !$db) {
-    error_log("❌ ERROR: Faltan variables de entorno esenciales para MySQL.");
-    return; // Termina aquí, $conn sigue siendo null
+    error_log("❌ ERROR MySQL: Faltan variables de entorno. 
+HOST=$host USER=$user PASS=$pass DB=$db");
+    return;
 }
 
-// --- 2. Intentar Conexión usando MySQLi ---
 try {
-    // Usamos el '@' para suprimir los mensajes de error de PHP que podrían imprimir <br />
-    $conn = @new mysqli($host, $user, $pass, $db, $port); 
+    $conn = @new mysqli($host, $user, $pass, $db, $port);
 
     if ($conn->connect_error) {
-        // La conexión falló, loguear el error y establecer $conn a null
-        error_log("❌ MySQL Connection Failed: " . $conn->connect_error);
+        error_log("❌ ERROR CONEXIÓN: " . $conn->connect_error);
         $conn = null;
     } else {
-        // Conexión exitosa
         $conn->set_charset("utf8mb4");
     }
 } catch (Exception $e) {
-    // Capturar cualquier excepción inesperada 
-    error_log("❌ Excepción al intentar conectar MySQL: " . $e->getMessage());
+    error_log("❌ EXCEPCIÓN MySQL: " . $e->getMessage());
     $conn = null;
 }
