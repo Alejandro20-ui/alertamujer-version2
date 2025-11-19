@@ -1,5 +1,7 @@
 <?php
-// Reportar errores para que aparezcan en los logs de Railway
+// ¡IMPORTANTE! Asegúrate de que esta sea la línea 1 sin espacios en blanco encima.
+
+// Reportar errores para que aparezcan en los logs de Railway, pero no en la salida JSON.
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
@@ -22,7 +24,7 @@ if (!$host || !$user || !$pass || !$db) {
 
 // --- 2. Intentar Conexión usando MySQLi ---
 try {
-    // El '@' suprime los warnings de PHP en caso de fallo, para que el TRY/CATCH sea más limpio
+    // Usamos el '@' para suprimir los mensajes de error de PHP que podrían imprimir <br />
     $conn = @new mysqli($host, $user, $pass, $db, $port); 
 
     if ($conn->connect_error) {
@@ -34,9 +36,7 @@ try {
         $conn->set_charset("utf8mb4");
     }
 } catch (Exception $e) {
-    // Capturar cualquier excepción inesperada (ej. clase mysqli no encontrada)
+    // Capturar cualquier excepción inesperada 
     error_log("❌ Excepción al intentar conectar MySQL: " . $e->getMessage());
     $conn = null;
 }
-// Al finalizar, $conn es o el objeto mysqli, o null.
-?>
