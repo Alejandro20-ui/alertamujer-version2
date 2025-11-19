@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (!empty($row['imagen'])) {
             $rutaLocal = __DIR__ . '/' . $row['imagen'];
             if (file_exists($rutaLocal)) {
-        $row['imagen'] = "https://warmi360-production.up.railway.app/" . $row['imagen'];
+        $row['imagen'] = "https:/alertamujer-version2-production.up.railway.app/" . $row['imagen'];
         } else {
             $row['imagen'] = null;
         }
