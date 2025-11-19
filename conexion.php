@@ -13,7 +13,7 @@ if ($mysql_url) {
     $host = $parts['host'] ?? 'localhost';
     $user = $parts['user'] ?? 'root';
     $pass = $parts['pass'] ?? '';
-    $db   = ltrim($parts['path'] ?? '', '/') ?: 'railway';
+    $db   = ltrim($parts['path'] ?? '', '/') ?: 'alertamujer';
     $port = $parts['port'] ?? 3306;
     
     error_log("📍 Usando MYSQL_URL: $host:$port/$db (user: $user)");
@@ -22,7 +22,7 @@ if ($mysql_url) {
     $host = getenv('MYSQLHOST') ?: 'mysql.railway.internal';
     $user = getenv('MYSQLUSER') ?: 'root';
     $pass = getenv('MYSQLPASSWORD') ?: '';
-    $db   = getenv('MYSQLDATABASE') ?: 'railway';
+    $db   = getenv('MYSQLDATABASE') ?: 'alertamujer';
     $port = getenv('MYSQLPORT') ?: 3306;
     
     error_log("📍 Usando variables individuales: $host:$port/$db (user: $user)");
