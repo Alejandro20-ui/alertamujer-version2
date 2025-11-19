@@ -17,6 +17,14 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 include "conexion.php";
 
+// 🔥 VERIFICACIÓN CRÍTICA: ¿La conexión es válida?
+if (!$conn) {
+    error_log("❌ Intento de registro sin conexión a base de datos");
+    http_response_code(500);
+    echo json_encode(["status" => "database_error"]);
+    exit();
+}
+
 // Validación básica de campos
 $required = ['nombre', 'apellidos', 'numero', 'correo'];
 foreach ($required as $field) {
