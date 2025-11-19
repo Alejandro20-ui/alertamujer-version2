@@ -4,25 +4,18 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
-// Tomar valores EXACTOS que Railway sí envía
-$host = getenv('MYSQLHOST');
-$user = getenv('MYSQLUSER');
+// USAR EL HOST PÚBLICO DE RAILWAY
+$host = getenv('MYSQLHOST') ?: 'maglev.proxy.rlwy.net';
+$user = getenv('MYSQLUSER') ?: 'root';
 $pass = getenv('MYSQLPASSWORD');
-$db   = getenv('MYSQLDATABASE');   // <--- VARIABLE CORRECTA CONFIRMADA
-$port = getenv('MYSQLPORT') ?: 3306;
+$db   = getenv('MYSQLDATABASE') ?: 'railway';
+$port = getenv('MYSQLPORT') ?: 50204;
 
 // Inicializar conexión
 $conn = null;
 
-// Validar que llegaron todas
 if (!$host || !$user || !$pass || !$db) {
-    error_log("❌ ERROR: Variables incompletas:
-HOST=$host
-USER=$user
-PASS=$pass
-DB=$db
-PORT=$port
-");
+    error_log("❌ ERROR: Variables incompletas");
     return;
 }
 
