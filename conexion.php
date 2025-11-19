@@ -5,11 +5,11 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 // USAR EL HOST PÚBLICO DE RAILWAY
-$host = getenv('MYSQLHOST') ?: 'maglev.proxy.rlwy.net';
+$host = getenv('MYSQLHOST') ?: 'mysql.railway.internal';
 $user = getenv('MYSQLUSER') ?: 'root';
 $pass = getenv('MYSQLPASSWORD');
 $db   = getenv('MYSQLDATABASE') ?: 'railway';
-$port = getenv('MYSQLPORT') ?: 50204;
+$port = getenv('MYSQLPORT') ?: 3306;
 
 // Inicializar conexión
 $conn = null;
