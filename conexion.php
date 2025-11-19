@@ -1,34 +1,18 @@
 <?php
-// Reportar errores a logs
 error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+ini_set('display_errors', 1);
 
-// USAR EL HOST PÚBLICO DE RAILWAY
-$host = getenv('MYSQLHOST') ?: 'mysql.railway.internal';
-$user = getenv('MYSQLUSER') ?: 'root';
-$pass = getenv('MYSQLPASSWORD');
-$db   = getenv('MYSQLDATABASE') ?: 'railway';
-$port = getenv('MYSQLPORT') ?: 3306;
+$host = getenv('MYSQLHOST') ?: ($_ENV['MYSQLHOST'] ?? 'localhost');
+$user = getenv('MYSQLUSER') ?: ($_ENV['MYSQLUSER'] ?? 'root');
+$pass = getenv('MYSQLPASSWORD') ?: ($_ENV['MYSQLPASSWORD'] ?? '');
+$db   = getenv('MYSQLDATABASE') ?: ($_ENV['MYSQLDATABASE'] ?? 'alertamujer');
+$port = getenv('MYSQLPORT') ?: ($_ENV['MYSQLPORT'] ?? 3306);
 
-// Inicializar conexión
-$conn = null;
+$conn = new mysqli($host, $user, $pass, $db, $port);
 
-if (!$host || !$user || !$pass || !$db) {
-    error_log("❌ ERROR: Variables incompletas");
-    return;
+if ($conn->connect_error) {
+    die(json_encode(["status" => "error", "message" => "Error de conexión: " . $conn->connect_error]));
 }
 
-try {
-    $conn = @new mysqli($host, $user, $pass, $db, $port);
-
-    if ($conn->connect_error) {
-        error_log("❌ ERROR CONECTANDO MySQL: " . $conn->connect_error);
-        $conn = null;
-    } else {
-        $conn->set_charset("utf8mb4");
-    }
-} catch (Exception $e) {
-    error_log("❌ EXCEPCIÓN EN MYSQL: " . $e->getMessage());
-    $conn = null;
-}
+$conn->set_charset("utf8mb4");
+?>
