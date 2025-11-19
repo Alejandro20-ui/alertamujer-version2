@@ -11,7 +11,7 @@ error_reporting(E_ALL);
 $host = getenv('MYSQLHOST');
 $user = getenv('MYSQLUSER');
 $pass = getenv('MYSQLPASSWORD');
-$db   = getenv('MYSQLDATABASE');
+$db = getenv('MYSQLDATABASE');
 $port = getenv('MYSQLPORT');
 
 // **********************************************
