@@ -1,44 +1,42 @@
 <?php
-// Habilitar logs de error (Railway los guardará)
+// Reportar errores para que aparezcan en los logs de Railway
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
-// PRIORIDAD 1: Usar MYSQL_URL si existe (Railway lo genera automáticamente)
-$mysql_url = getenv('MYSQL_URL');
+// --- 1. Obtener Credenciales desde Variables de Entorno de Railway ---
+$host = getenv('MYSQLHOST');
+$user = getenv('MYSQLUSER');
+$pass = getenv('MYSQLPASSWORD');
+$db   = getenv('MYSQLDATABASE'); // Debe ser 'alertamujer'
+$port = getenv('MYSQLPORT');
 
-if ($mysql_url) {
-    // Parsear la URL: mysql://user:pass@host:port/database
-    $parts = parse_url($mysql_url);
-    $host = $parts['host'] ?? 'localhost';
-    $user = $parts['user'] ?? 'root';
-    $pass = $parts['pass'] ?? '';
-    $db   = ltrim($parts['path'] ?? '', '/') ?: 'alertamujer';
-    $port = $parts['port'] ?? 3306;
-    
-    error_log("📍 Usando MYSQL_URL: $host:$port/$db (user: $user)");
-} else {
-    // PRIORIDAD 2: Variables individuales (fallback)
-    $host = getenv('MYSQLHOST') ?: 'mysql.railway.internal';
-    $user = getenv('MYSQLUSER') ?: 'root';
-    $pass = getenv('MYSQLPASSWORD') ?: '';
-    $db   = getenv('MYSQLDATABASE') ?: 'alertamujer';
-    $port = getenv('MYSQLPORT') ?: 3306;
-    
-    error_log("📍 Usando variables individuales: $host:$port/$db (user: $user)");
+// Inicializar la variable de conexión como null
+$conn = null;
+
+// **Verificación de seguridad:** Si faltan variables, no intentar conectar.
+if (!$host || !$user || !$pass || !$db) {
+    error_log("❌ ERROR: Faltan variables de entorno esenciales para MySQL.");
+    return; // Termina aquí, $conn sigue siendo null
 }
 
-// Intentar conexión
-$conn = @new mysqli($host, $user, $pass, $db, $port);
+// --- 2. Intentar Conexión usando MySQLi ---
+try {
+    // El '@' suprime los warnings de PHP en caso de fallo, para que el TRY/CATCH sea más limpio
+    $conn = @new mysqli($host, $user, $pass, $db, $port); 
 
-// Si falla la conexión, loguear pero NO terminar aquí
-if ($conn->connect_error) {
-    error_log("❌ MySQL Connection Error: " . $conn->connect_error);
-    error_log("   Host: $host | User: $user | DB: $db | Port: $port");
+    if ($conn->connect_error) {
+        // La conexión falló, loguear el error y establecer $conn a null
+        error_log("❌ MySQL Connection Failed: " . $conn->connect_error);
+        $conn = null;
+    } else {
+        // Conexión exitosa
+        $conn->set_charset("utf8mb4");
+    }
+} catch (Exception $e) {
+    // Capturar cualquier excepción inesperada (ej. clase mysqli no encontrada)
+    error_log("❌ Excepción al intentar conectar MySQL: " . $e->getMessage());
     $conn = null;
-} else {
-    // Conexión exitosa
-    $conn->set_charset("utf8mb4");
-    error_log("✅ MySQL Connected: $host:$port/$db");
 }
+// Al finalizar, $conn es o el objeto mysqli, o null.
 ?>
